@@ -1,23 +1,20 @@
-import os
-import sys
-import subprocess
 from pprint import pprint
 from langchain_core.messages import SystemMessage
-
 from langchain_openai import ChatOpenAI
 from langchain_core.runnables import RunnableConfig
 from langgraph.prebuilt import create_react_agent
+from langchain.chat_models import init_chat_model
 from prompt import SYSTEM_PROMPT
-from tools.utils import  python_script_runner, shell_script_runner, r_script_runner, view_file_header
+from tools.utils import view_file_header
+from tools.code_excuter_docker import Code_Executor
+
 # define tools
 tools = [
-    python_script_runner,
-    shell_script_runner,
-    r_script_runner,
+    Code_Executor,
     view_file_header
 ]
 
-llm = ChatOpenAI(model="gpt-4o", temperature=0)
+llm = init_chat_model(model="gpt-4o", temperature=0, model_provider="openai")
 
 agent_executor = create_react_agent(
     llm, 
@@ -55,8 +52,9 @@ def run_agent(query: str):
     print(full_response)
 
 # --- Run the example ---
-user_input = "Visualize the expression of genes to show the strongest positive and negative correlations with drug response across cell lines, highlight any outliers in the figure /mnt/data/lengyang/wes4/github/langchain/learn/BioAgent/tasks/task_1/data.csv"
-run_agent(user_input)
+if __name__ == "__main__":
+    user_input = "Visualize the expression of genes to show the strongest positive and negative correlations with drug response across cell lines, highlight any outliers in the figure ./tasks/task_1/data.csv"
+    run_agent(user_input)
 
 
 
